@@ -8,18 +8,18 @@ case "$(uname -s)" in
     NAME=Darwin
 esac
 
-# case "$NAME" in
-#   Ubuntu)
-#     for tool (git-extras htop silversearcher-ag tree); do
-#       [[ -z $(dpkg -l | grep $tool) ]] && sudo apt-get install -y $tool
-#     done
-#     ;;
-#   Darwin)
-#     for tool (git-extras htop the_silver_searcher); do
-#       [[ -z $(brew list | grep $tool) ]] && brew install $tool
-#     done
-#     ;;
-# esac
+case "$NAME" in
+  Ubuntu)
+    for tool (git-extras htop silversearcher-ag tree); do
+      [[ -z $(dpkg -l | grep $tool) ]] && sudo apt-get install -y $tool
+    done
+    ;;
+  Darwin)
+    for tool (git-extras htop the_silver_searcher); do
+      [[ -z $(brew list | grep $tool) ]] && brew install $tool
+    done
+    ;;
+esac
 
 if [[ ! -d ~/.dotfiles ]]; then
   git clone git://github.com/szetobo/dotfiles.git ~/.dotfiles
@@ -37,19 +37,17 @@ if [[ ! -d ~/.dotfiles ]]; then
   mkdir -p ~/.psql_history
 fi
 
-# if [[ ! -d ~/.maximum-awesome ]]; then
-#   git clone git://github.com/square/maximum-awesome.git ~/.maximum-awesome
-#   git clone https://github.com/VundleVim/Vundle.vim.git ~/.maximum-awesome/vim/bundle/Vundle.vim
+if [[ ! -d ~/.maximum-awesome ]]; then
+  git clone git://github.com/square/maximum-awesome.git ~/.maximum-awesome
+  git clone https://github.com/VundleVim/Vundle.vim.git ~/.maximum-awesome/vim/bundle/Vundle.vim
 
-#   ln -sf ~/.maximum-awesome/vim ~/.vim
-#   ln -sf ~/.maximum-awesome/vimrc ~/.vimrc
-#   ln -sf ~/.maximum-awesome/vimrc.bundles ~/.vimrc.bundles
+  ln -sf ~/.maximum-awesome/vim ~/.vim
+  ln -sf ~/.maximum-awesome/vimrc ~/.vimrc
+  ln -sf ~/.maximum-awesome/vimrc.bundles ~/.vimrc.bundles
 
-#   vim +BundleInstall +qall
-# fi
-
+  vim +BundleInstall +qall
+fi
 # }}}
-
 
 # zplug {{{
 
@@ -169,28 +167,20 @@ txtest() {
   fi
   tmux attach -t test;
 }
-# txpair() {
-#   SOCKET=/home/share/tmux-pair/default
-#   if ! tmux -S $SOCKET has-session -t pair 2> /dev/null; then
-#     tmux -S $SOCKET new -s pair -d;
-#     # tmux -S $SOCKET send-keys -t pair:1.1 "chmod 1777 " $SOCKET C-m "clear" C-m;
-#   fi
-#   tmux -S $SOCKET attach -t pair;
-# }
-# fixssh() {
-#   if [ "$TMUX" ]; then
-#     export $(tmux showenv SSH_AUTH_SOCK)
-#   fi
-# }
+txpair() {
+  SOCKET=/home/share/tmux-pair/default
+  if ! tmux -S $SOCKET has-session -t pair 2> /dev/null; then
+    tmux -S $SOCKET new -s pair -d;
+    # tmux -S $SOCKET send-keys -t pair:1.1 "chmod 1777 " $SOCKET C-m "clear" C-m;
+  fi
+  tmux -S $SOCKET attach -t pair;
+}
+fixssh() {
+  if [ "$TMUX" ]; then
+    export $(tmux showenv SSH_AUTH_SOCK)
+  fi
+}
 # }}}
-
-# auto load tmux
-# if which tmux 2>&1 >/dev/null; then
-#   # create session 0 if not exists
-#   if ! tmux has-session -t 0; then
-#     tmux
-#   fi
-# fi
 
 # aliases {{{
 alias px='ps aux'
@@ -252,3 +242,155 @@ bindkey '^n' history-substring-search-down
 # }}}
 
 # }}}
+#
+# 重啟 puma/unicorn（非 daemon 模式，用於 pry debug）
+rpy() {
+  if bundle show pry-remote > /dev/null 2>&1; then
+    bundle exec pry-remote
+  else
+    rpu pry
+  fi
+}
+
+
+# 重啟 puma/unicorn
+#
+# - rpu       → 啟動或重啟（如果已有 pid）
+# - rpu kill  → 殺掉 process，不重啟
+# - rpu xxx   → xxx 參數會被丟給 pumactl（不支援 unicorn）
+rpu() {
+  emulate -L zsh
+  if [[ -d tmp ]]; then
+    local action=$1
+    local pid
+    local animal
+
+    if [[ -f config/puma.rb ]]; then
+      animal='puma'
+    elif [[ -f config/unicorn.rb ]]; then
+      animal='unicorn'
+    else
+      echo "No puma/unicorn directory, aborted."
+      return 1
+    fi
+
+    if [[ -r tmp/pids/$animal.pid && -n $(ps h -p `cat tmp/pids/$animal.pid` | tr -d ' ') ]]; then
+      pid=`cat tmp/pids/$animal.pid`
+    fi
+
+    if [[ -n $action ]]; then
+      case "$action" in
+        pry)
+          if [[ -n $pid ]]; then
+            kill -9 $pid && echo "Process killed ($pid)."
+          fi
+          rserver_restart $animal
+          ;;
+        kill)
+          if [[ -n $pid ]]; then
+            kill -9 $pid && echo "Process killed ($pid)."
+          else
+            echo "No process found."
+          fi
+          ;;
+        *)
+          if [[ -n $pid ]]; then
+            # TODO: control unicorn
+            pumactl -p $pid $action
+          else
+            echo 'ERROR: "No running PID (tmp/pids/puma.pid).'
+          fi
+      esac
+    else
+      if [[ -n $pid ]]; then
+        # Alternatives:
+        # pumactl -p $pid restart
+        # kill -USR2 $pid && echo "Process killed ($pid)."
+
+        # kill -9 (SIGKILL) for force kill
+        kill -9 $pid && echo "Process killed ($pid)."
+        rserver_restart $animal $([[ "$animal" == 'puma' ]] && echo '-d' || echo '-D')
+      else
+        rserver_restart $animal $([[ "$animal" == 'puma' ]] && echo '-d' || echo '-D')
+      fi
+    fi
+  else
+    echo 'ERROR: "tmp" directory not found.'
+  fi
+}
+
+
+# 啟動／停止 sidekiq
+rsidekiq() {
+  emulate -L zsh
+  if [[ -d tmp ]]; then
+    if [[ -r tmp/pids/sidekiq.pid && -n $(ps h -p `cat tmp/pids/sidekiq.pid` | tr -d ' ') ]]; then
+      case "$1" in
+        restart)
+          bundle exec sidekiqctl restart tmp/pids/sidekiq.pid
+          ;;
+        *)
+          bundle exec sidekiqctl stop tmp/pids/sidekiq.pid
+      esac
+    else
+      echo "Start sidekiq process..."
+      nohup bundle exec sidekiq  > ~/.nohup/sidekiq.out 2>&1&
+      disown %nohup
+    fi
+  else
+    echo 'ERROR: "tmp" directory not found.'
+  fi
+}
+
+
+# 啟動／停止 mailcatcher
+rmailcatcher() {
+  local pid=$(ps --no-headers -C mailcatcher -o pid,args | command grep '/bin/mailcatcher --http-ip' | sed 's/^ //' | cut -d' ' -f 1)
+  if [[ -n $pid ]]; then
+    kill $pid && echo "MailCatcher process $pid killed."
+  else
+    echo "Start MailCatcher process..."
+    nohup mailcatcher --http-ip 0.0.0.0 > ~/.nohup/mailcatcher.out 2>&1&
+    disown %nohup
+  fi
+}
+
+
+# 這是 rpu 會用到的 helper function
+rserver_restart() {
+  local app=${$(pwd):t}
+  [[ ! $app =~ '^(amoeba|cam|angel)' ]] && app='nerv' # support app not named 'nerv' (e.g., nerv2)
+
+  case "$1" in
+    puma)
+      shift
+      RAILS_RELATIVE_URL_ROOT=/$app bundle exec puma -C config/puma.rb config.ru $*
+      ;;
+    unicorn)
+      shift
+      RAILS_RELATIVE_URL_ROOT=/$app bundle exec unicorn -c config/unicorn.rb $* && echo 'unicorn running'
+      ;;
+    *)
+      echo 'invalid argument'
+  esac
+}
+
+# custom
+# --- rake
+alias rdrt='rake db:reset RAILS_ENV=test'
+# --- git
+alias gfrm='git pull origin master --rebase'
+# --- scripts
+alias dump_db='/vagrant/scripts/dump_db.zsh'
+alias idump_db='/vagrant/scripts/dump_db.zsh i'
+# --- yarn
+alias ys='yarn start'
+
+# git diff-highlight
+if [[ ! -d ~/bin ]]; then
+  mkdir -p ~/bin
+
+  sudo ln -sf /usr/share/doc/git/contrib/diff-highlight/diff-highlight ~/bin/diff-highlight
+fi
+
+path=($path "$HOME/bin")

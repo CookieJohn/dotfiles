@@ -47,8 +47,7 @@ set wildmenu                                                 " show a navigable 
 set wildmode=longest,list,full
 
 " Enable basic mouse behavior such as resizing buffers.
-" set mouse=a
-set mouse=r
+set mouse=a
 if exists('$TMUX')  " Support resizing in tmux
   set ttymouse=xterm2
 endif
@@ -105,11 +104,11 @@ autocmd VimResized * :wincmd =
 
 " Fix Cursor in TMUX
 if exists('$TMUX')
-  let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
-  let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+  let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=1\x7\<Esc>\\"
+  let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=0\x7\<Esc>\\"
 else
-  let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-  let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+  let &t_SI = "\<Esc>]1337;CursorShape=1\x7"
+  let &t_EI = "\<Esc>]1337;CursorShape=0\x7"
 endif
 
 " Don't copy the contents of an overwritten selection.
@@ -128,6 +127,3 @@ if filereadable(expand("~/.vimrc.local"))
   " noremap! jj <ESC>
   source ~/.vimrc.local
 endif
-
-" add default vim colortheme
-colorscheme codeschool

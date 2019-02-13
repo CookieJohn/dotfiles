@@ -1,0 +1,20 @@
+Plugin 'maciakl/vim-neatstatus'
+Plugin 'epeli/slimux'
+Plugin 'stephpy/vim-yaml'
+" Plugin 'fholgado/minibufexpl.vim'
+Plugin 'junegunn/vim-easy-align'
+Plugin 'flazz/vim-colorschemes'
+Plugin 'Lokaltog/vim-easymotion'
+" Plugin 'MattesGroeger/vim-bookmarks'
+Plugin 'sjl/gundo.vim'
+" Plugin 'kana/vim-altercmd'
+Plugin 'ap/vim-buftabline'
+
+" react
+Plugin 'moll/vim-node'
+Plugin 'mxw/vim-jsx'
+Plugin 'othree/yajs'
+Plugin 'othree/es.next.syntax.vim'
+
+" Plugin 'Valloric/YouCompleteMe'
+" Plugin 'kovisoft/slimv'
