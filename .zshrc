@@ -376,6 +376,12 @@ rserver_restart() {
 }
 
 # custom
+# ---set up vm
+set_up_vm() {
+  vagrant halt
+  vagrant up
+  vagrant ssh
+}
 # --- rake
 alias rdrt='rake db:reset RAILS_ENV=test'
 # --- git
