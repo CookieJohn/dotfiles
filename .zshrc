@@ -382,6 +382,14 @@ set_up_vm() {
   vagrant up
   vagrant ssh
 }
+# ---fetch master and return current branch
+gfrwc() {
+  $ORI_BR="$(git-branch-current 2> /dev/null)"
+  gss
+  gco master
+  gfr
+  gco $ORI_BR
+}
 # --- rake
 alias rdrt='rake db:reset RAILS_ENV=test'
 # --- git
