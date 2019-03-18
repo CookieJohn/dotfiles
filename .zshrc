@@ -320,9 +320,33 @@ rpu() {
 
 
 # 啟動／停止 sidekiq
+# rsidekiq() {
+#   emulate -L zsh
+#   if [[ -d tmp ]]; then
+#     if [[ -r tmp/pids/sidekiq.pid && -n $(ps h -p `cat tmp/pids/sidekiq.pid` | tr -d ' ') ]]; then
+#       case "$1" in
+#         restart)
+#           bundle exec sidekiqctl restart tmp/pids/sidekiq.pid
+#           ;;
+#         *)
+#           bundle exec sidekiqctl stop tmp/pids/sidekiq.pid
+#       esac
+#     else
+#       echo "Start sidekiq process..."
+#       nohup bundle exec sidekiq  > ~/.nohup/sidekiq.out 2>&1&
+#       disown %nohup
+#     fi
+#   else
+#     echo 'ERROR: "tmp" directory not found.'
+#   fi
+# }
 rsidekiq() {
   emulate -L zsh
   if [[ -d tmp ]]; then
+    local pid=$(ps -ef | grep sidekiq | grep -v grep | awk '{print $2}')
+    if [[ -n $pid ]]; then
+      kill $pid && echo "Sidekiq process $pid killed."
+    fi
     if [[ -r tmp/pids/sidekiq.pid && -n $(ps h -p `cat tmp/pids/sidekiq.pid` | tr -d ' ') ]]; then
       case "$1" in
         restart)
@@ -343,15 +367,26 @@ rsidekiq() {
 
 
 # 啟動／停止 mailcatcher
+# rmailcatcher() {
+#   local pid=$(ps --no-headers -C mailcatcher -o pid,args | command grep '/bin/mailcatcher --http-ip' | sed 's/^ //' | cut -d' ' -f 1)
+#   if [[ -n $pid ]]; then
+#     kill $pid && echo "MailCatcher process $pid killed."
+#   else
+#     echo "Start MailCatcher process..."
+#     nohup mailcatcher --http-ip 0.0.0.0 > ~/.nohup/mailcatcher.out 2>&1&
+#     disown %nohup
+#   fi
+# }
 rmailcatcher() {
-  local pid=$(ps --no-headers -C mailcatcher -o pid,args | command grep '/bin/mailcatcher --http-ip' | sed 's/^ //' | cut -d' ' -f 1)
+  # local pid=$(ps --no-headers -C mailcatcher -o pid,args | command grep '/bin/mailcatcher --http-ip' | sed 's/^ //' | cut -d' ' -f 1)
+  local pid=$(ps -ef | grep mailcatcher | grep -v grep | awk '{print $2}')
   if [[ -n $pid ]]; then
     kill $pid && echo "MailCatcher process $pid killed."
-  else
-    echo "Start MailCatcher process..."
-    nohup mailcatcher --http-ip 0.0.0.0 > ~/.nohup/mailcatcher.out 2>&1&
-    disown %nohup
   fi
+  echo "Start MailCatcher process..."
+  rm /home/vagrant/.nohup/mailcatcher.out
+  nohup mailcatcher --http-ip 0.0.0.0 > ~/.nohup/mailcatcher.out 2>&1&
+  disown %nohup
 }
 
 
@@ -395,6 +430,7 @@ resetadb() {
   bundle exec rake db:create RAILS_ENV=test
   bundle exec rake db:schema:load RAILS_ENV=test
   bundle exec rake db:seed RAILS_ENV=test
+  bundle exec rake test:prepare
 }
 # --- rake
 alias rdrt='rake db:reset RAILS_ENV=test'
