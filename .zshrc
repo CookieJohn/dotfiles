@@ -410,6 +410,19 @@ rserver_restart() {
 }
 
 # custom
+# set git config
+john_git() {
+  git config user.email 'johnwu2613@gmail.com'
+  git config user.name 'John'
+  git config user.email
+  git config user.name
+}
+abagile_git() {
+  git config user.email 'john.wu@abagile.com'
+  git config user.name 'John Wu'
+  git config user.email
+  git config user.name
+}
 # ---set up vm
 set_up_vm() {
   vagrant halt
