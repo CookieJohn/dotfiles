@@ -439,6 +439,8 @@ alias gfrm='git pull origin master --rebase'
 # --- scripts
 alias dump_db='/vagrant/scripts/dump_db.zsh'
 alias idump_db='/vagrant/scripts/dump_db.zsh i'
+alias mdump_db='/vagrant/scripts/my_dump_db.zsh n'
+alias imdump_db='/vagrant/scripts/my_dump_db.zsh a'
 # --- yarn
 alias ys='yarn start'
 
