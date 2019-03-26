@@ -446,6 +446,8 @@ resetadb() {
   bundle exec rake test:prepare
 }
 # --- rake
+alias rcs='bundle exec rails c --sandbox'
+# --- rake
 alias rdrt='rake db:reset RAILS_ENV=test'
 # --- git
 alias gfrm='git pull origin master --rebase'
