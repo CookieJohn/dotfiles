@@ -410,6 +410,13 @@ rserver_restart() {
 }
 
 # custom
+# asdf update
+update_asdf() {
+  asdf update
+  asdf plugin-list-all
+  asdf plugin-update --all
+  asdf reshim && echo 'asdf reshim done.'
+}
 # set git config
 john_git() {
   git config user.email 'johnwu2613@gmail.com'
