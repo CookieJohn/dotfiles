@@ -464,7 +464,7 @@ alias idump_db='/vagrant/scripts/dump_db.zsh i'
 alias mdump_db='/vagrant/scripts/my_dump_db.zsh n'
 alias imdump_db='/vagrant/scripts/my_dump_db.zsh a'
 # --- yarn
-alias ys='yarn start'
+alias ys='yarn && yarn start'
 
 # git diff-highlight
 if [[ ! -d ~/bin ]]; then
