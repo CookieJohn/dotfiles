@@ -458,13 +458,14 @@ alias rcs='bundle exec rails c --sandbox'
 alias rdrt='rake db:reset RAILS_ENV=test'
 # --- git
 alias gfrm='git pull origin master --rebase'
+alias gclean='gco . && gco master && gfr && gf -p && git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d'
 # --- scripts
 alias dump_db='/vagrant/scripts/dump_db.zsh'
 alias idump_db='/vagrant/scripts/dump_db.zsh i'
 alias mdump_db='/vagrant/scripts/my_dump_db.zsh n'
 alias imdump_db='/vagrant/scripts/my_dump_db.zsh a'
 # --- yarn
-alias ys='yarn && yarn start'
+alias ys='yarn start'
 
 # git diff-highlight
 if [[ ! -d ~/bin ]]; then
