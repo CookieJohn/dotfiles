@@ -1,0 +1,6 @@
+--sort−files
+
+--ignore="*jquery-*"
+--ignore-directory=is:node_modules
+
+# https://gist.github.com/kevinold/4749656
