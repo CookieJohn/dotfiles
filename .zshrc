@@ -59,7 +59,7 @@ fi
 source ~/.zplug/init.zsh
 
 zplug "plugins/vi-mode", from:oh-my-zsh
-zplug "plugins/chruby",  from:oh-my-zsh
+# zplug "plugins/chruby",  from:oh-my-zsh
 zplug "plugins/asdf",    from:oh-my-zsh
 zplug "plugins/bundler", from:oh-my-zsh
 zplug "plugins/rails",   from:oh-my-zsh
