@@ -5,4 +5,5 @@ cp .vimrc.bundles.local ~/.vimrc.bundles.local && echo update vimrc.bundles.loca
 cp .tmux.conf ~/.tmux.conf && echo update tmux.conf OK || echo update tmux.conf Failed
 cp .pryrc ~/.pryrc && echo update pryrc OK || echo update pryrc Failed
 cp .ackrc ~/.ackrc && echo update ackrc OK || echo update ackrc Failed
+cp .tigrc ~/.tigrc && echo update tigrc OK || echo update tigrc Failed
 source ~/.zshrc && echo source zshrc done!
