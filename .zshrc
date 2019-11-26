@@ -458,7 +458,7 @@ alias rcs='bundle exec rails c --sandbox'
 alias rdrt='rake db:reset RAILS_ENV=test'
 # --- git
 alias gfrm='git pull origin master --rebase'
-alias gclean='gco . && gco master && gfr && gf -p && git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d'
+alias gclean='gco . && gco master && gfm && gf -p && git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d'
 # --- scripts
 alias dump_db='/vagrant/scripts/dump_db.zsh'
 alias idump_db='/vagrant/scripts/dump_db.zsh i'
