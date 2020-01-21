@@ -30,7 +30,7 @@ if [[ ! -d ~/.dotfiles ]]; then
   ln -sf ~/.dotfiles/.vimrc.local         ~/.vimrc.local
   ln -sf ~/.dotfiles/.vimrc.bundles.local ~/.vimrc.bundles.local
 
-  ln -sf ~/.dotfiles/zshrc                ~/.zshrc
+  ln -sf ~/.dotfiles/.zshrc                ~/.zshrc
 
   mkdir -p ~/.psql_history
 fi
@@ -72,7 +72,9 @@ zplug "zsh-users/zsh-autosuggestions", defer:3
 zplug "zdharma/zsh-diff-so-fancy", as:command, use:bin/git-dsf
 
 # zim {{{
+zstyle ':zim:git' aliases-prefix 'g'
 zplug "zimfw/zimfw", as:plugin, use:"init.zsh", hook-build:"ln -sf $ZPLUG_REPOS/zimfw/zimfw ~/.zim"
+zplug "zimfw/git", as:plugin
 
 zmodules=(directory environment git git-info history input ssh utility \
           prompt completion syntax-highlighting history-substring-search)
