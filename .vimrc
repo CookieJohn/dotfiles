@@ -127,3 +127,17 @@ if filereadable(expand("~/.vimrc.local"))
   " noremap! jj <ESC>
   source ~/.vimrc.local
 endif
+
+" remove arrow keys
+map <Right> <Nop>
+map <Left> <Nop>
+map <Up> <Nop>
+map <Down> <Nop>
+lmap <Right> <Nop>
+lmap <Left> <Nop>
+lmap <Up> <Nop>
+lmap <Down> <Nop>
+imap <Right> <Nop>
+imap <Left> <Nop>
+imap <Up> <Nop>
+imap <Down> <Nop>
