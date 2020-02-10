@@ -464,8 +464,7 @@ alias gclean='gco . && gco master && gfm && gf -p && git branch --merged | egrep
 # --- scripts
 alias dump_db='/vagrant/scripts/dump_db.zsh'
 alias idump_db='/vagrant/scripts/dump_db.zsh i'
-alias mdump_db='/vagrant/scripts/my_dump_db.zsh n'
-alias imdump_db='/vagrant/scripts/my_dump_db.zsh a'
+alias mdump_db='/vagrant/scripts/my_dump_db.zsh'
 # --- yarn
 alias ys='yarn start'
 
