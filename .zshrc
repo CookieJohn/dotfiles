@@ -68,6 +68,8 @@ zplug "b4b4r07/enhancd", use:init.sh
 zplug "junegunn/fzf", as:command, hook-build:"./install --bin", use:"bin/{fzf-tmux,fzf}"
 
 zplug "zsh-users/zsh-autosuggestions", defer:3
+zplug "zsh-users/zsh-history-substring-search", defer:2
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
 zplug "zdharma/zsh-diff-so-fancy", as:command, use:bin/git-dsf
 
@@ -77,7 +79,7 @@ zplug "zimfw/zimfw", as:plugin, use:"init.zsh", hook-build:"ln -sf $ZPLUG_REPOS/
 zplug "zimfw/git", as:plugin
 
 zmodules=(directory environment git git-info history input ssh utility \
-          prompt completion syntax-highlighting history-substring-search)
+          prompt completion)
 
 zhighlighters=(main brackets pattern cursor root)
 
