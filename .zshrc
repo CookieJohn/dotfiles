@@ -472,6 +472,7 @@ alias form_fetch='thor form:fetch'
 # --- yarn
 alias ys='yarn start'
 
+alias ll='ls -al'
 alias gpc='git push --set-upstream origin "$(git symbolic-ref -q --short HEAD 2> /dev/null)"'
 
 
