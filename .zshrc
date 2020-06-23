@@ -460,6 +460,7 @@ resetadb() {
 alias rcs='bundle exec rails c --sandbox'
 # --- rake
 alias rdrt='rake db:reset RAILS_ENV=test'
+alias rdmskip="rake db:migrate SKIP_PATCHING_MIGRATION='skip_any_patching_related_migrations'"
 # --- git
 alias gfrm='git pull origin master --rebase'
 alias gclean='gco . && gco master && gfm && gf -p && git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d'
@@ -467,8 +468,12 @@ alias gclean='gco . && gco master && gfm && gf -p && git branch --merged | egrep
 alias dump_db='/vagrant/scripts/dump_db.zsh'
 alias idump_db='/vagrant/scripts/dump_db.zsh i'
 alias mdump_db='/vagrant/scripts/my_dump_db.zsh'
+alias form_fetch='thor form:fetch'
 # --- yarn
 alias ys='yarn start'
+
+alias gpc='git push --set-upstream origin "$(git symbolic-ref -q --short HEAD 2> /dev/null)"'
+
 
 # git diff-highlight
 if [[ ! -d ~/bin ]]; then
