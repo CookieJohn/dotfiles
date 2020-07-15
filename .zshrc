@@ -474,7 +474,32 @@ alias ys='yarn start'
 
 alias ll='ls -al'
 alias gpc='git push --set-upstream origin "$(git symbolic-ref -q --short HEAD 2> /dev/null)"'
-
+alias hk_pdf_checker='thor gen:pdf_preview --bps \
+  r01:R01006422 \
+  s01:S01001086:schedule_docs \
+  r01_kr:R01992335 \
+  pro_r:PR1043111:no-abf \
+  pro_r:PR1958183:no-abf,pro-conv:schedule_docs \
+  pro_r:PR1340170 \
+  pro_r:PR1975092:no-abf \
+  pro_r_v1_upop:PR1512249 \
+  pro_r_kr:PR1875129 \
+  pro_r_v3:PR1803442:no-abf \
+  pro_r_v3:PR1717446 \
+  pro_s:PS1067670 \
+  ps_r:R01003906 \
+  ps_pro:PR1958183 \
+  ps_pro_kr:PR1257183 \
+  mail_booklet:PR1958183'
+alias ck_pdf_checker='thor gen:pdf_preview --bps \
+  r01:CR0131546:schedule_docs'
+  # s01:CS0101002 \
+  # r01_kr:CR0184153 \
+  # ct:CT0182922 \
+  # cr21_cca:CR2190705 \
+  # cs21:CS2125686 \
+  # mail_booklet_ck:CR0184153'
+alias pdf_diff='thor gen:pdf_diff'
 
 # git diff-highlight
 if [[ ! -d ~/bin ]]; then
