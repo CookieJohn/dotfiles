@@ -36,16 +36,16 @@ if [[ ! -d ~/.dotfiles ]]; then
 fi
 
 # temporary comment
-if [[ ! -d ~/.maximum-awesome ]]; then
-  git clone git://github.com/square/maximum-awesome.git ~/.maximum-awesome
-  git clone https://github.com/VundleVim/Vundle.vim.git ~/.maximum-awesome/vim/bundle/Vundle.vim
+# if [[ ! -d ~/.maximum-awesome ]]; then
+#   git clone git://github.com/square/maximum-awesome.git ~/.maximum-awesome
+#   git clone https://github.com/VundleVim/Vundle.vim.git ~/.maximum-awesome/vim/bundle/Vundle.vim
 
-  ln -sf ~/.maximum-awesome/vim ~/.vim
-  ln -sf ~/.maximum-awesome/vimrc ~/.vimrc
-  ln -sf ~/.maximum-awesome/vimrc.bundles ~/.vimrc.bundles
+#   ln -sf ~/.maximum-awesome/vim ~/.vim
+#   ln -sf ~/.maximum-awesome/vimrc ~/.vimrc
+#   ln -sf ~/.maximum-awesome/vimrc.bundles ~/.vimrc.bundles
 
-  vim +BundleInstall +qall
-fi
+#   vim +BundleInstall +qall
+# fi
 # }}}
 
 # zplug {{{

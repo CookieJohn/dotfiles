@@ -11,8 +11,8 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 " install Vundle bundles
-if filereadable(expand("~/.vimrc.bundles"))
-  source ~/.vimrc.bundles
+if filereadable(expand("~/.vimrc.bundles.local"))
+  " source ~/.vimrc.bundles
   source ~/.vimrc.bundles.local
 endif
 
