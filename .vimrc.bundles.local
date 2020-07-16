@@ -19,5 +19,8 @@ Plugin 'othree/es.next.syntax.vim'
 Plugin 'thinca/vim-quickrun'
 Plugin 'bootleq/vim-qrpsqlpq'
 
+" dracula
+Plugin 'dracula/vim'
+
 " Plugin 'Valloric/YouCompleteMe'
 " Plugin 'kovisoft/slimv'
