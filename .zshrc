@@ -29,7 +29,6 @@ if [[ ! -d ~/.dotfiles ]]; then
   ln -sf ~/.dotfiles/.vimrc               ~/.vimrc
   ln -sf ~/.dotfiles/.vimrc.local         ~/.vimrc.local
   ln -sf ~/.dotfiles/.vimrc.bundles.local ~/.vimrc.bundles.local
-
   ln -sf ~/.dotfiles/.zshrc                ~/.zshrc
 
   mkdir -p ~/.psql_history
@@ -398,7 +397,7 @@ rmailcatcher() {
 # 這是 rpu 會用到的 helper function
 rserver_restart() {
   local app=${$(pwd):t}
-  [[ ! $app =~ '^(amoeba|cam|angel)' ]] && app='nerv' # support app not named 'nerv' (e.g., nerv2)
+  [[ ! $app =~ '^(amoeba|cam|angel|perv)' ]] && app='nerv' # support app not named 'nerv' (e.g., nerv2)
 
   case "$1" in
     puma)
@@ -457,6 +456,8 @@ resetadb() {
   bundle exec rake db:seed RAILS_ENV=test
   bundle exec rake test:prepare
 }
+# --- spring
+alias rcs='spring stop & spring binstub --all'
 # --- rake
 alias rcs='bundle exec rails c --sandbox'
 # --- rake
