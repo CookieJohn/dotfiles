@@ -457,7 +457,7 @@ resetadb() {
   bundle exec rake test:prepare
 }
 # --- spring
-alias rcs='spring stop & spring binstub --all'
+alias sspring='spring stop & spring binstub --all'
 # --- rake
 alias rcs='bundle exec rails c --sandbox'
 # --- rake
