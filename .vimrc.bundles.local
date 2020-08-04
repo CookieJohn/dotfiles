@@ -19,8 +19,14 @@ Plugin 'othree/es.next.syntax.vim'
 Plugin 'thinca/vim-quickrun'
 Plugin 'bootleq/vim-qrpsqlpq'
 
+" clojure
+Plugin 'guns/vim-sexp'
+Plugin 'eraserhd/parinfer-rust'
+Plugin 'Olical/conjure'
+
 " dracula
 Plugin 'dracula/vim'
+Plugin 'zefei/simple-dark'
 
 " Plugin 'Valloric/YouCompleteMe'
 " Plugin 'kovisoft/slimv'
