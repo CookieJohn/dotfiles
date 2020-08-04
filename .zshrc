@@ -83,6 +83,7 @@ zmodules=(directory environment git git-info history input ssh utility \
 zhighlighters=(main brackets pattern cursor root)
 
 zplug 'dracula/zsh', as:theme
+# zplug 'zefei/simple-dark', as:theme
 # zplug denysdovhan/spaceship-prompt, use:spaceship.zsh, from:github, as:theme
 
 # if [[ "$NAME" = "Ubuntu" ]]; then

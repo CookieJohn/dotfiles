@@ -295,6 +295,7 @@ set t_Co=256
 silent! colorscheme molokai
 silent! colorscheme jellybeans
 silent! colorscheme dracula
+silent! colorscheme simple-dark
 " }}}
 
 " Share VIM settings {{{
