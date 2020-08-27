@@ -213,7 +213,7 @@ alias vsf='va ssh -- -L 0.0.0.0:8080:localhost:80 -L 1080:localhost:1080'
 alias vup='va up'
 alias vsup='va suspend'
 alias vhalt='va halt'
-alias vpro='va provision -vvv && va ssh'
+alias vpro='va provision'
 
 alias gws=gwS
 alias gba='gb -a'
