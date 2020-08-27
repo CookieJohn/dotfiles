@@ -10,15 +10,18 @@ esac
 
 case "$NAME" in
   Ubuntu)
-    for tool (git-extras htop silversearcher-ag tree); do
-      [[ -z $(dpkg -l | grep $tool) ]] && sudo apt-get install -y $tool
-    done
+    # for tool (git-extras htop silversearcher-ag tree); do
+    #   [[ -z $(dpkg -l | grep $tool) ]] && sudo apt-get install -y $tool
+    # done
     ;;
-  # Darwin)
+  Darwin)
+    eval "$(ssh-agent -s)"
+    ssh-add -K ~/.ssh/id_rsa
+    # ssh-add -L
   #   for tool (git-extras htop the_silver_searcher); do
   #     [[ -z $(brew list | grep $tool) ]] && brew install $tool
   #   done
-  #   ;;
+    ;;
 esac
 
 if [[ ! -d ~/.dotfiles ]]; then
@@ -456,6 +459,12 @@ resetadb() {
   bundle exec rake db:schema:load RAILS_ENV=test
   bundle exec rake db:seed RAILS_ENV=test
   bundle exec rake test:prepare
+}
+# key-agent
+setup_key_agent() {
+  eval "$(ssh-agent -s)"
+  ssh-add -K ~/.ssh/id_rsa
+  ssh-add -L
 }
 # --- spring
 alias sspring='spring stop & spring binstub --all'
