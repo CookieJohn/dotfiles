@@ -472,6 +472,8 @@ alias dump_db='/vagrant/scripts/dump_db.zsh'
 alias idump_db='/vagrant/scripts/dump_db.zsh i'
 alias mdump_db='/vagrant/scripts/my_dump_db.zsh'
 alias form_fetch='thor form:fetch'
+# --- amoeba / cam
+alias site='thor setup:site'
 # --- yarn
 alias ys='yarn start'
 
