@@ -485,6 +485,8 @@ alias form_fetch='thor form:fetch'
 alias site='thor setup:site'
 # --- yarn
 alias ys='yarn start'
+# --- npm
+alias nw='npm run watch'
 
 alias ll='ls -al'
 alias gpc='git push --set-upstream origin "$(git symbolic-ref -q --short HEAD 2> /dev/null)"'
