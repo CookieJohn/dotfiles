@@ -469,6 +469,7 @@ setup_key_agent() {
 # --- spring
 alias sspring='spring stop & spring binstub --all'
 # --- rake
+alias rc='bundle exec rails c'
 alias rcs='bundle exec rails c --sandbox'
 # --- rake
 alias rdrt='rake db:reset RAILS_ENV=test'
