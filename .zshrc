@@ -472,8 +472,8 @@ alias sspring='spring stop & spring binstub --all'
 alias rc='bundle exec rails c'
 alias rcs='bundle exec rails c --sandbox'
 # --- rake
-alias rdrt='rake db:reset RAILS_ENV=test'
-alias rdmskip="rake db:migrate SKIP_PATCHING_MIGRATION='skip_any_patching_related_migrations'"
+alias rdrt='bundle exec rake db:reset RAILS_ENV=test'
+alias rdmskip="bundle exec rake db:migrate SKIP_PATCHING_MIGRATION='skip_any_patching_related_migrations'"
 # --- git
 alias gfrm='git pull origin master --rebase'
 alias gclean='gco . && gco master && gfm && gf -p && git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d'
@@ -487,7 +487,7 @@ alias site='thor setup:site'
 # --- yarn
 alias ys='yarn start'
 # --- npm
-alias nw='npm run watch'
+alias nw='cd eva/asuka/ && npm run watch'
 
 alias ll='ls -al'
 alias gpc='git push --set-upstream origin "$(git symbolic-ref -q --short HEAD 2> /dev/null)"'
