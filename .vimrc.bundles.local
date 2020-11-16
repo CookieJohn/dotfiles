@@ -28,5 +28,8 @@ Plugin 'Olical/conjure'
 Plugin 'dracula/vim'
 Plugin 'zefei/simple-dark'
 
+" linter
+Plugin 'dense-analysis/ale'
+
 " Plugin 'Valloric/YouCompleteMe'
 " Plugin 'kovisoft/slimv'

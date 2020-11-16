@@ -11,8 +11,8 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 " install Vundle bundles
-if filereadable(expand("~/.vimrc.bundles.local"))
-  " source ~/.vimrc.bundles
+if filereadable(expand("~/.vimrc.bundles"))
+  source ~/.vimrc.bundles
   source ~/.vimrc.bundles.local
 endif
 
@@ -128,16 +128,8 @@ if filereadable(expand("~/.vimrc.local"))
   source ~/.vimrc.local
 endif
 
-" remove arrow keys
-map <Right> <Nop>
-map <Left> <Nop>
-map <Up> <Nop>
-map <Down> <Nop>
-lmap <Right> <Nop>
-lmap <Left> <Nop>
-lmap <Up> <Nop>
-lmap <Down> <Nop>
-imap <Right> <Nop>
-imap <Left> <Nop>
-imap <Up> <Nop>
-imap <Down> <Nop>
+" linter
+let g:ale_linters = {
+\ 'ruby':    ['rubocop', 'reek'],
+\ 'clojure': ['clj-kondo']
+\}
