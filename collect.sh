@@ -6,3 +6,4 @@ cp ~/.tmux.conf .tmux.conf && echo collect tmux.conf OK || echo collect tmux.con
 cp ~/.ackrc .ackrc && echo collect ackrc OK || echo collect ackrc Failed
 cp ~/.pryrc .pryrc && echo collect pryrc OK || echo collect pryrc Failed
 cp ~/.tigrc .tigrc && echo collect tigrc OK || echo collect tigrc Failed
+cp ~/.config/nvim/init.vim init.vim && echo collect init.vim OK || echo collect init.vim Failed

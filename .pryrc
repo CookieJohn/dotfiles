@@ -1,4 +1,12 @@
-# Nerv {{{
+require 'awesome_print'
+AwesomePrint.pry!
+
+Pry.commands.alias_command 'c',  'continue'
+Pry.commands.alias_command 's',  'step'
+Pry.commands.alias_command 'n',  'next'
+Pry.commands.alias_command 'f',  'finish'
+Pry.commands.alias_command 'ep', 'exit-program'
+
 if defined?(Nerv)
   module Nerv::Pry
     RESOURCE_TYPES = {
@@ -32,21 +40,17 @@ if defined?(Nerv)
     banner <<-BANNER
       Usage: nerv-resource TYPE QUERY
              nerv-resource TYPE QUERY [ --to VAR ]
-
       Get nerv resource by id or keyword, and assign it to a variable.
       Supported types:
         [#{Nerv::Pry::RESOURCE_TYPES.keys.join(' ')}]
         check `Nerv::Pry::RESOURCE_TYPES` for detail mapping
-
       Examples:
-
       nerv-resource sr 666               get SR #666 and assign to `sr`
       nerv-resource bp r1677 --to bp2    get BP R01001677 and assign to `bp2`
       nerv-resource fd2 42               get FD #42 and assign to `fd2`
       nerv-resource pdi 0                get frist PDI, 0 can be replaced by ^ or :first
       nerv-resource pdi -1               get last PDI, -1 can be replaced by $ or :last
       nerv-resource pdi                  get last item if no query given
-
       Append `;` to suppress the eval output.
       By default `=` is aliased to this command, try `=sr 666` shortcut usage.
     BANNER
@@ -154,6 +158,8 @@ if defined?(Nerv)
         END
         eval_string << cmd
       end
+
+      return "#{login.downcase!} has been changed."
     end
 
     private

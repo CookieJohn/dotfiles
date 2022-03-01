@@ -1,117 +1,5 @@
-# shell environment initialization {{{
-
-case "$(uname -s)" in
-  Linux)
-    source /etc/os-release
-    ;;
-  Darwin)
-    NAME=Darwin
-esac
-
-case "$NAME" in
-  Ubuntu)
-    # for tool (git-extras htop silversearcher-ag tree); do
-    #   [[ -z $(dpkg -l | grep $tool) ]] && sudo apt-get install -y $tool
-    # done
-    ;;
-  Darwin)
-    eval "$(ssh-agent -s)"
-    ssh-add -K ~/.ssh/id_rsa
-    # ssh-add -L
-  #   for tool (git-extras htop the_silver_searcher); do
-  #     [[ -z $(brew list | grep $tool) ]] && brew install $tool
-  #   done
-    ;;
-esac
-
-if [[ ! -d ~/.dotfiles ]]; then
-  git clone git@github.com:CookieJohn/dotfiles.git ~/.dotfiles
-
-  ln -sf ~/.dotfiles/.pryrc               ~/.pryrc
-  ln -sf ~/.dotfiles/.tmux.conf           ~/.tmux.conf
-  ln -sf ~/.dotfiles/.vimrc               ~/.vimrc
-  ln -sf ~/.dotfiles/.vimrc.local         ~/.vimrc.local
-  ln -sf ~/.dotfiles/.vimrc.bundles.local ~/.vimrc.bundles.local
-  ln -sf ~/.dotfiles/.zshrc                ~/.zshrc
-
-  mkdir -p ~/.psql_history
-fi
-
-# temporary comment
-if [[ ! -d ~/.maximum-awesome ]]; then
-  git clone git://github.com/square/maximum-awesome.git ~/.maximum-awesome
-  git clone https://github.com/VundleVim/Vundle.vim.git ~/.maximum-awesome/vim/bundle/Vundle.vim
-
-  ln -sf ~/.maximum-awesome/vim ~/.vim
-  ln -sf ~/.maximum-awesome/vimrc ~/.vimrc
-  ln -sf ~/.maximum-awesome/vimrc.bundles ~/.vimrc.bundles
-
-  vim +BundleInstall +qall
-fi
-# }}}
-
-# zplug {{{
-
-# install zplug, if necessary
-if [[ ! -d ~/.zplug ]]; then
-  export ZPLUG_HOME=~/.zplug
-  git clone https://github.com/zplug/zplug $ZPLUG_HOME
-fi
-
-source ~/.zplug/init.zsh
-
-zplug "plugins/vi-mode", from:oh-my-zsh
-# zplug "plugins/chruby",  from:oh-my-zsh
-zplug "plugins/asdf",    from:oh-my-zsh
-zplug "plugins/bundler", from:oh-my-zsh
-zplug "plugins/rails",   from:oh-my-zsh
-
-zplug "b4b4r07/enhancd", use:init.sh
-zplug "junegunn/fzf", as:command, hook-build:"./install --bin", use:"bin/{fzf-tmux,fzf}"
-
-zplug "zsh-users/zsh-autosuggestions", defer:3
-zplug "zsh-users/zsh-history-substring-search", defer:2
-zplug "zsh-users/zsh-syntax-highlighting", defer:2
-
-zplug "zdharma/zsh-diff-so-fancy", as:command, use:bin/git-dsf
-
-# zim {{{
 zstyle ':zim:git' aliases-prefix 'g'
-zplug "zimfw/zimfw", as:plugin, use:"init.zsh", hook-build:"ln -sf $ZPLUG_REPOS/zimfw/zimfw ~/.zim"
-zplug "zimfw/git", as:plugin
-
-zmodules=(directory environment git git-info history input ssh utility \
-          prompt completion)
-
-zhighlighters=(main brackets pattern cursor root)
-
-zplug 'dracula/zsh', as:theme
-# zplug 'zefei/simple-dark', as:theme
-# zplug denysdovhan/spaceship-prompt, use:spaceship.zsh, from:github, as:theme
-
-# if [[ "$NAME" = "Ubuntu" ]]; then
-#   zprompt_theme='eriner'
-# else
-#   zprompt_theme='liquidprompt'
-# fi
-# }}}
-
-if ! zplug check --verbose; then
-  zplug install
-fi
-
-zplug load #--verbose
-
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'
-
-source ~/.zplug/repos/junegunn/fzf/shell/key-bindings.zsh
-source ~/.zplug/repos/junegunn/fzf/shell/completion.zsh
-
-export FZF_COMPLETION_TRIGGER=';'
-export FZF_TMUX=1
-
-# }}}
-
+. ~/.zplugin
 
 # customization {{{
 
@@ -119,6 +7,7 @@ export FZF_TMUX=1
 p()  { cd ~/proj/$1;}
 h()  { cd ~/$1;}
 vm() { cd ~/vagrant/$1;}
+cdpath=(~ ~/proj)
 
 compctl -W ~/proj -/ p
 compctl -W ~ -/ h
@@ -126,17 +15,18 @@ compctl -W ~/vagrant -/ vm
 # }}}
 
 # development shortcut {{{
-alias pa!='[[ -f config/puma.rb ]] && RAILS_RELATIVE_URL_ROOT=/`basename $PWD` bundle exec puma -C $PWD/config/puma.rb'
-alias pa='[[ -f config/puma.rb ]] && RAILS_RELATIVE_URL_ROOT=/`basename $PWD` bundle exec puma -C $PWD/config/puma.rb -d'
+# alias pa!='[[ -f config/puma.rb ]] && RAILS_RELATIVE_URL_ROOT=/`basename $PWD` bundle exec puma -C $PWD/config/puma.rb'
+# alias pa='[[ -f config/puma.rb ]] && RAILS_RELATIVE_URL_ROOT=/`basename $PWD` bundle exec puma -C $PWD/config/puma.rb -d'
 alias kpa='[[ -f tmp/pids/puma.state ]] && bundle exec pumactl -S tmp/pids/puma.state stop'
+# alias kpa='[[ -f tmp/pids/puma.pid ]] && kill `cat tmp/pids/puma.pid`'
 
-alias mc='bundle exec mailcatcher --http-ip 0.0.0.0'
+alias mc='mailcatcher --http-ip 0.0.0.0'
 alias kmc='pkill -fe mailcatcher'
 alias sk='[[ -f config/sidekiq.yml ]] && bundle exec sidekiq -C $PWD/config/sidekiq.yml -d'
 alias ksk='pkill -fe sidekiq'
 
-pairg() { ssh -t $1 ssh -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=/dev/null' -p $2 -t vagrant@localhost 'tmux attach' }
-pairh() { ssh -S none -o 'ExitOnForwardFailure=yes' -R $2\:localhost:22222 -t $1 'watch -en 10 who' }
+pairg() { ssh -t $1 ssh -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=/dev/null' -p $2 -t ${3:-vagrant}@localhost 'tmux attach' }
+pairh() { ssh -S none -o 'ExitOnForwardFailure=yes' -R $2\:localhost:22 -t $1 'watch -en 10 who' }
 
 cop() {
   local exts=('rb,thor,jbuilder')
@@ -189,17 +79,29 @@ fixssh() {
 # }}}
 
 # aliases {{{
+alias g='git'
+
+if [[ "`uname -s`" == "Darwin" ]]; then
+  alias vi='nvim'
+  alias vim='nvim'
+fi
+
 alias px='ps aux'
-alias vt='vim -c :CtrlP'
-alias v.='vim .'
+alias vt='vi -c :CtrlP'
+alias vl='vi -c :CtrlPMRU'
+alias v.='vi .'
 
 alias sa='ssh-add'
 alias salock='ssh-add -x'
 alias saunlock='ssh-add -X'
 
 alias agi='ag -i'
+alias agiw='ag -i -w'
 alias agr='ag --ruby'
 alias agri='ag --ruby -i'
+
+alias rgi='rg -i'
+alias rgiw='rg -iw'
 
 alias -g G='| ag'
 alias -g P='| $PAGER'
@@ -211,15 +113,13 @@ alias -g HEP='HANAMI_ENV=production'
 alias -g HET='HANAMI_ENV=test'
 
 alias va=vagrant
-alias vsh='va ssh'
-alias vsf='va ssh -- -L 0.0.0.0:8080:localhost:80 -L 1080:localhost:1080'
+# alias vsh='va ssh'
+# alias vsf='va ssh -- -L 0.0.0.0:8080:localhost:80 -L 1080:localhost:1080'
+alias vsh='ssh gko.abagile.aws.kr'
+alias vsf='vsh -L 0.0.0.0:8080:localhost:80 -L 1080:localhost:1080'
 alias vup='va up'
 alias vsup='va suspend'
 alias vhalt='va halt'
-alias vpro='va provision'
-
-alias gws=gwS
-alias gba='gb -a'
 
 alias ha=hanami
 alias hac='ha console'
@@ -228,19 +128,22 @@ alias hag='ha generate'
 alias ham='ha generate migration'
 alias has='ha server'
 alias har='ha routes'
+
+alias zshrc='vi ~/.zshrc'
+alias vimrc='vi ~/.config/nvim/init.vim'
 # }}}
 
 # environment variables {{{
-export EDITOR=vim
-export VISUAL=vim
+export EDITOR=vi
+export VISUAL=vi
 #}}}
 
 # key bindings {{{
 bindkey -M vicmd '^a' beginning-of-line
 bindkey -M vicmd '^e' end-of-line
 
-bindkey '^f' vi-forward-word
-bindkey '^b' vi-backward-word
+bindkey '^[f' vi-forward-word
+bindkey '^[b' vi-backward-word
 
 bindkey '^o' autosuggest-accept
 
@@ -248,183 +151,170 @@ bindkey '^p' history-substring-search-up
 bindkey '^n' history-substring-search-down
 # }}}
 
+export fpath=(~/.config/exercism/functions $fpath)
+autoload -U compinit && compinit
+
+export PATH=$PATH:~/bin:/snap/bin
 # }}}
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+[ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh && source $HOME/.asdf/completions/asdf.bash
+
+export _git_log_fuller_format='%C(bold yellow)commit %H%C(auto)%d%n%C(bold)Author: %C(blue)%an <%ae> %C(reset)%C(cyan)%ai (%ar)%n%C(bold)Commit: %C(blue)%cn <%ce> %C(reset)%C(cyan)%ci (%cr)%C(reset)%n%+B'
+export _git_log_oneline_format='%C(bold yellow)%h%C(reset) %s%C(auto)%d%C(reset)'
+export _git_log_oneline_medium_format='%C(bold yellow)%h%C(reset) %<(50,trunc)%s %C(bold blue)<%an> %C(reset)%C(cyan)(%ar)%C(auto)%ad%C(reset)'
+
+git-current-branch() {
+  git symbolic-ref -q --short HEAD
+}
+
+git-branch-delete-interactive() {
+  local -a remotes
+  if (( ${*[(I)(-r|--remotes)]} )); then
+    remotes=(${^*:#-*})
+  else
+    remotes=(${(f)"$(command git rev-parse --abbrev-ref ${^*:#-*}@{u} 2>/dev/null)"}) || remotes=()
+  fi
+  if command git branch --delete ${@} && \
+      (( ${#remotes} )) && \
+      read -q "?Also delete remote branch(es) ${remotes} [y/N]? "; then
+    print
+    local remote
+    for remote (${remotes}) command git push ${remote%%/*} :${remote#*/}
+  fi
+}
+
+pa!() {
+  local folder_path
+  [[ $PWD =~ '(.*nerv_ck|.*nerv_sg|.*nerv|.*amoeba|.*cam|.*angel)' ]] && folder_path=$match[1]
+  cd $folder_path && [[ -f config/puma.rb ]] && RAILS_RELATIVE_URL_ROOT=/`basename $PWD` bundle exec puma -C $PWD/config/puma.rb $1
+}
+
+nrw() {
+  local folder_path
+  local folder_name
+  local asuka_path
+
+  [[ $PWD =~ '(.*nerv_ck|.*nerv_sg|.*nerv)' ]] && folder_path=$match[1]
+  [[ $folder_path =~ '.*(nerv_ck|nerv_sg|nerv)$' ]] && folder_name=$match[1]
+
+  asuka_path="$folder_path/clojure/projects/asuka"
+
+  cd $asuka_path && NERV_BASE=/${=folder_name} DEV_DARK_MODE=true npm run watch
+}
+
+repl() {
+  local folder_path
+  local adam_path
+
+  [[ $PWD =~ '(.*nerv_ck|.*nerv_sg|.*nerv)' ]] && folder_path=$match[1]
+  adam_path="$folder_path/clojure/projects/adam"
+  cd $adam_path && clj -M:dev:nrepl
+}
+
+ct() {
+  local folder_path
+  local adam_path
+
+  [[ $PWD =~ '(.*nerv_ck|.*nerv_sg|.*nerv)' ]] && folder_path=$match[1]
+  adam_path="$folder_path/clojure/projects/adam"
+  cd $adam_path && clj -M:test:runner --watch
+}
+
+# ---reset amoeba db
+resetadb() {
+  bundle exec rake db:drop RAILS_ENV=test
+  bundle exec rake db:create RAILS_ENV=test
+  bundle exec rake db:schema:load RAILS_ENV=test
+  bundle exec rake db:seed RAILS_ENV=test
+  bundle exec rake test:prepare
+}
+
+resetadbd() {
+  psql postgres -c "drop database if exists amoeba_development"
+  psql postgres -c "drop database if exists amoeba_test"
+  bundle exec rake db:create RAILS_ENV=development
+  # bundle exec rake db:schema:load RAILS_ENV=development
+}
+
+# HSTR configuration - add this to ~/.zshrc
+# alias hh=hstr                    # hh to be alias for hstr
+# setopt histignorespace           # skip cmds w/ leading space from history
+export HSTR_CONFIG=hicolor       # get more colors
+bindkey -s "\C-r" "\C-a hstr -- \C-j"     # bind hstr to Ctrl-r (for Vi mode check doc)
+
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden'
+
+# john
+# --- spring
+alias sspring='spring stop & spring binstub --all'
+# --- rake
+alias rc='bundle exec rails c'
+alias rcs='bundle exec rails c --sandbox'
+# --- rake
+alias rdrt='bundle exec rake db:reset RAILS_ENV=test'
+alias rdmskip="bundle exec rake db:migrate SKIP_PATCHING_MIGRATION='skip_any_patching_related_migrations'"
+# --- git
+alias gpc='git config --global push.default current && gp'
+alias gfrm='git pull origin master --rebase'
+alias gclean='gco master && gfm && gf -p && git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d'
+# --- scripts
+alias db_dump="DEV_PASSWORD='ie6sucks' ~/vm/scripts/db_dump.rb"
+alias dump_db='/vagrant/scripts/dump_db.zsh'
+alias idump_db='/vagrant/scripts/dump_db.zsh i'
+alias mydump_db='zsh ~/Downloads/my_dump_db_m1.zsh'
+alias form_fetch='thor form:fetch'
+# --- amoeba / cam
+alias site='thor setup:site'
+# --- tmux
+alias ktmux='pkill -f tmux'
+# --- yarn
+alias ys='yarn start'
+# --- npm
+# alias nw='cd ~/nerv/eva/asuka/ && npm run watch'
+alias nrd='npm run dev'
+# --- clojure
+alias cljkeva='clj-kondo --lint clojure/projects/asuka/src --config clojure/projects/asuka/.clj-kondo/config.edn --cache false'
+alias cljkadam='clj-kondo --lint clojure/projects/adam/src --config clojure/projects/adam/.clj-kondo/config.edn --cache false'
+alias cljk='cljkeva && cljkadam'
+# alias nrepl='cd ~/nerv/clojure/adam && clj -M:dev:nrepl'
+# --- homebrew
+# --- postgresql
+alias bs='brew services'
+alias bu='brew upgrade'
+alias bunormal='bu libreoffice libreoffice-language-pack notion wkhtmltopdf'
+alias dbrestart='rm /usr/local/var/postgresql@10/postmaster.pid && bs restart postgresql@10 && bs'
+alias tig='TERM=xterm-256color tig'
+alias python='python3'
+alias sed=gsed
+
+# Manual checking before mina deploy
 #
-# 重啟 puma/unicorn（非 daemon 模式，用於 pry debug）
-rpy() {
-  if bundle show pry-remote > /dev/null 2>&1; then
-    bundle exec pry-remote
-  else
-    rpu pry
-  fi
-}
-
-
-# 重啟 puma/unicorn
+# minav [site branch]
 #
-# - rpu       → 啟動或重啟（如果已有 pid）
-# - rpu kill  → 殺掉 process，不重啟
-# - rpu xxx   → xxx 參數會被丟給 pumactl（不支援 unicorn）
-rpu() {
-  emulate -L zsh
-  if [[ -d tmp ]]; then
-    local action=$1
-    local pid
-    local animal
+# - Show latest deployed revision on server (default: ck_production)
+# - Show short git diff to branch (default: master)
+# - Copy the revisoin to tmux paste-buffer (if within tmux session)
+function minav(){
+  local rev
+  local branch='master'
+  local site='ck_production'
+  [[ $# -gt 0 ]] && site=$1
+  [[ $# -gt 1 ]] && branch=$2
 
-    if [[ -f config/puma.rb ]]; then
-      animal='puma'
-    elif [[ -f config/unicorn.rb ]]; then
-      animal='unicorn'
-    else
-      echo "No puma/unicorn directory, aborted."
-      return 1
-    fi
+  rev=$(bundle exec mina $site branch=$branch git:revision | head -3 | sed -e 's/ //g' | grep -e '^[a-z]' -m 1 | cut -c 1-10)
 
-    if [[ -r tmp/pids/$animal.pid && -n $(ps h -p `cat tmp/pids/$animal.pid` | tr -d ' ') ]]; then
-      pid=`cat tmp/pids/$animal.pid`
-    fi
+  git show --date=format:'%y/%m/%d %H:%M' \
+    --pretty='%C(yellow)%h%Creset %s %C(black bold)%cd (%cr)%Creset %C(blue bold)%cn%Creset' \
+    $rev
 
-    if [[ -n $action ]]; then
-      case "$action" in
-        pry)
-          if [[ -n $pid ]]; then
-            kill -9 $pid && echo "Process killed ($pid)."
-          fi
-          rserver_restart $animal
-          ;;
-        kill)
-          if [[ -n $pid ]]; then
-            kill -9 $pid && echo "Process killed ($pid)."
-          else
-            echo "No process found."
-          fi
-          ;;
-        *)
-          if [[ -n $pid ]]; then
-            # TODO: control unicorn
-            pumactl -p $pid $action
-          else
-            echo 'ERROR: "No running PID (tmp/pids/puma.pid).'
-          fi
-      esac
-    else
-      if [[ -n $pid ]]; then
-        # Alternatives:
-        # pumactl -p $pid restart
-        # kill -USR2 $pid && echo "Process killed ($pid)."
+  [[ -n $TMUX ]] && tmux set-buffer $rev
 
-        # kill -9 (SIGKILL) for force kill
-        kill -9 $pid && echo "Process killed ($pid)."
-        rserver_restart $animal $([[ "$animal" == 'puma' ]] && echo '-d' || echo '-D')
-      else
-        rserver_restart $animal $([[ "$animal" == 'puma' ]] && echo '-d' || echo '-D')
-      fi
-    fi
-  else
-    echo 'ERROR: "tmp" directory not found.'
-  fi
+  echo "git diff --stat $rev..$branch"
+  git diff --stat $rev..$branch
 }
 
-
-# 啟動／停止 sidekiq
-# rsidekiq() {
-#   emulate -L zsh
-#   if [[ -d tmp ]]; then
-#     if [[ -r tmp/pids/sidekiq.pid && -n $(ps h -p `cat tmp/pids/sidekiq.pid` | tr -d ' ') ]]; then
-#       case "$1" in
-#         restart)
-#           bundle exec sidekiqctl restart tmp/pids/sidekiq.pid
-#           ;;
-#         *)
-#           bundle exec sidekiqctl stop tmp/pids/sidekiq.pid
-#       esac
-#     else
-#       echo "Start sidekiq process..."
-#       nohup bundle exec sidekiq  > ~/.nohup/sidekiq.out 2>&1&
-#       disown %nohup
-#     fi
-#   else
-#     echo 'ERROR: "tmp" directory not found.'
-#   fi
-# }
-rsidekiq() {
-  emulate -L zsh
-  if [[ -d tmp ]]; then
-    local pid=$(ps -ef | grep sidekiq | grep -v grep | awk '{print $2}')
-    if [[ -n $pid ]]; then
-      kill $pid && echo "Sidekiq process $pid killed."
-    fi
-    if [[ -r tmp/pids/sidekiq.pid && -n $(ps h -p `cat tmp/pids/sidekiq.pid` | tr -d ' ') ]]; then
-      case "$1" in
-        restart)
-          bundle exec sidekiqctl restart tmp/pids/sidekiq.pid
-          ;;
-        *)
-          bundle exec sidekiqctl stop tmp/pids/sidekiq.pid
-      esac
-    else
-      echo "Start sidekiq process..."
-      nohup bundle exec sidekiq  > ~/.nohup/sidekiq.out 2>&1&
-      disown %nohup
-    fi
-  else
-    echo 'ERROR: "tmp" directory not found.'
-  fi
-}
-
-
-# 啟動／停止 mailcatcher
-# rmailcatcher() {
-#   local pid=$(ps --no-headers -C mailcatcher -o pid,args | command grep '/bin/mailcatcher --http-ip' | sed 's/^ //' | cut -d' ' -f 1)
-#   if [[ -n $pid ]]; then
-#     kill $pid && echo "MailCatcher process $pid killed."
-#   else
-#     echo "Start MailCatcher process..."
-#     nohup mailcatcher --http-ip 0.0.0.0 > ~/.nohup/mailcatcher.out 2>&1&
-#     disown %nohup
-#   fi
-# }
-rmailcatcher() {
-  # local pid=$(ps --no-headers -C mailcatcher -o pid,args | command grep '/bin/mailcatcher --http-ip' | sed 's/^ //' | cut -d' ' -f 1)
-  local pid=$(ps -ef | grep mailcatcher | grep -v grep | awk '{print $2}')
-  if [[ -n $pid ]]; then
-    kill $pid && echo "MailCatcher process $pid killed."
-  fi
-  echo "Start MailCatcher process..."
-  rm /home/vagrant/.nohup/mailcatcher.out
-  nohup mailcatcher --http-ip 0.0.0.0 > ~/.nohup/mailcatcher.out 2>&1&
-  disown %nohup
-}
-
-
-# 這是 rpu 會用到的 helper function
-rserver_restart() {
-  local app=${$(pwd):t}
-  [[ ! $app =~ '^(amoeba|cam|angel|perv)' ]] && app='nerv' # support app not named 'nerv' (e.g., nerv2)
-
-  case "$1" in
-    puma)
-      shift
-      RAILS_RELATIVE_URL_ROOT=/$app bundle exec puma -C config/puma.rb config.ru $*
-      ;;
-    unicorn)
-      shift
-      RAILS_RELATIVE_URL_ROOT=/$app bundle exec unicorn -c config/unicorn.rb $* && echo 'unicorn running'
-      ;;
-    *)
-      echo 'invalid argument'
-  esac
-}
-
-# custom
-# asdf update
-update_asdf() {
-  asdf update
-  asdf plugin-list-all
-  asdf plugin-update --all
-  asdf reshim && echo 'asdf reshim done.'
-}
 # set git config
 john_git() {
   git config user.email 'johnwu2613@gmail.com'
@@ -438,92 +328,41 @@ abagile_git() {
   git config user.email
   git config user.name
 }
-# ---set up vm
-set_up_vm() {
-  vagrant halt
-  vagrant up
-  vagrant ssh
-}
-# ---fetch master and return current branch
-gfrwc() {
-  $ORI_BR="$(git-branch-current 2> /dev/null)"
-  gss
-  gco master
-  gfr
-  gco $ORI_BR
-}
-# ---reset amoeba db
-resetadb() {
-  bundle exec rake db:drop RAILS_ENV=test
-  bundle exec rake db:create RAILS_ENV=test
-  bundle exec rake db:schema:load RAILS_ENV=test
-  bundle exec rake db:seed RAILS_ENV=test
-  bundle exec rake test:prepare
-}
-# key-agent
-setup_key_agent() {
-  eval "$(ssh-agent -s)"
-  ssh-add -K ~/.ssh/id_rsa
-  ssh-add -L
-}
-# --- spring
-alias sspring='spring stop & spring binstub --all'
-# --- rake
-alias rc='bundle exec rails c'
-alias rcs='bundle exec rails c --sandbox'
-# --- rake
-alias rdrt='bundle exec rake db:reset RAILS_ENV=test'
-alias rdmskip="bundle exec rake db:migrate SKIP_PATCHING_MIGRATION='skip_any_patching_related_migrations'"
-# --- git
-alias gfrm='git pull origin master --rebase'
-alias gclean='gco . && gco master && gfm && gf -p && git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d'
-# --- scripts
-alias dump_db='/vagrant/scripts/dump_db.zsh'
-alias idump_db='/vagrant/scripts/dump_db.zsh i'
-alias mdump_db='/vagrant/scripts/my_dump_db.zsh'
-alias form_fetch='thor form:fetch'
-# --- amoeba / cam
-alias site='thor setup:site'
-# --- yarn
-alias ys='yarn start'
-# --- npm
-alias nw='cd eva/asuka/ && npm run watch'
 
-alias ll='ls -al'
-alias gpc='git push --set-upstream origin "$(git symbolic-ref -q --short HEAD 2> /dev/null)"'
-alias hk_pdf_checker='thor gen:pdf_preview --bps \
-  r01:R01006422 \
-  s01:S01001086:schedule_docs \
-  r01_kr:R01992335 \
-  pro_r:PR1043111:no-abf \
-  pro_r:PR1958183:no-abf,pro-conv:schedule_docs \
-  pro_r:PR1340170 \
-  pro_r:PR1975092:no-abf \
-  pro_r_v1_upop:PR1512249 \
-  pro_r_kr:PR1875129 \
-  pro_r_v3:PR1803442:no-abf \
-  pro_r_v3:PR1717446 \
-  pro_s:PS1067670 \
-  ps_r:R01003906 \
-  ps_pro:PR1958183 \
-  ps_pro_kr:PR1257183 \
-  mail_booklet:PR1958183'
-alias ck_pdf_checker='thor gen:pdf_preview --bps \
-  r01:CR0131546:schedule_docs'
-  # s01:CS0101002 \
-  # r01_kr:CR0184153 \
-  # ct:CT0182922 \
-  # cr21_cca:CR2190705 \
-  # cs21:CS2125686 \
-  # mail_booklet_ck:CR0184153'
-alias pdf_diff='thor gen:pdf_diff'
+deployhk() {
+  # ps aux | grep -E "cljs" | awk '{print $2}' | xargs kill -9 &&
+  bundle exec mina hk_production cljs:build_and_upload &&
+  bundle exec mina hk_production deploy
+}
 
-# git diff-highlight
-if [[ ! -d ~/bin ]]; then
-  mkdir -p ~/bin
+deployck() {
+  # ps aux | grep -E "cljs" | awk '{print $2}' | xargs kill -9 &&
+  bundle exec mina ck_production cljs:build_and_upload &&
+  bundle exec mina ck_production deploy
+}
 
-  sudo ln -sf /usr/share/doc/git/contrib/diff-highlight/diff-highlight ~/bin/diff-highlight
-fi
+deployadam() {
+  cd clojure/projects/adam && ./bin/deploy
+}
 
-path=($path "$HOME/bin")
-alias python='python3'
+# killserver () {
+#   pkill -f tmux
+#   ps aux | grep -E clojure | awk '{print $2}' | xargs kill -15
+#   ps aux | grep -E puma | awk '{print $2}' | xargs kill -15
+#   echo "done."
+# }
+#
+
+export PATH="/usr/local/opt/postgresql@10/bin:$PATH" >> ~/.zshrc
+
+ssh-add ~/.ssh/id_pair
+
+# for rabbitmq
+# export PATH="/usr/local/sbin:$PATH"
+# export PATH=$PATH:/usr/local/sbin
+export PATH="/usr/local/opt/erlang@23/bin:$PATH"
+export LANGUAGE='en_US.UTF-8 git'
+# export PATH="/usr/local/opt/erlang@23/bin:$PATH"
+# export PATH=$HOME/bin:/usr/local/bin:/usr/local/opt/erlang@23/bin:$PATH
+# export PATH=$HOME/bin:/usr/local/bin:/usr/local/opt/libpq/bin:/usr/local/opt/erlang@23/bin:$PATH
+# export PATH="/usr/local/opt/erlang@22/bin:$PATH"
