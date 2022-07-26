@@ -3,6 +3,10 @@ zstyle ':zim:git' aliases-prefix 'g'
 
 # customization {{{
 
+if [[ "`uname -s`" == "Darwin" ]]; then
+  export LANG=C
+fi
+
 # directory shortcut {{{
 p()  { cd ~/proj/$1;}
 h()  { cd ~/$1;}
@@ -51,7 +55,7 @@ cop() {
 # tmux shortcut {{{
 tx() {
   if ! tmux has-session -t work 2> /dev/null; then
-    tmux new -s work -d;
+    tmux -u new -s work -d;
     # tmux splitw -h -p 40 -t work;
     # tmux select-p -t 1;
   fi
@@ -84,7 +88,13 @@ alias g='git'
 if [[ "`uname -s`" == "Darwin" ]]; then
   alias vi='nvim'
   alias vim='nvim'
+  # if [ `whence gls` > /dev/null ]; then
+  #   alias ls='gls --group-directories-first --color=auto'
+  # fi
 fi
+
+alias ls='exa --group-directories-first'
+alias l='ls -la'
 
 alias px='ps aux'
 alias vt='vi -c :CtrlP'
@@ -103,14 +113,16 @@ alias agri='ag --ruby -i'
 alias rgi='rg -i'
 alias rgiw='rg -iw'
 
-alias -g G='| ag'
+alias -g G='| rg'
 alias -g P='| $PAGER'
 alias -g WC='| wc -l'
 alias -g RE='RESCUE=1'
 
-alias -g HED='HANAMI_ENV=development'
-alias -g HEP='HANAMI_ENV=production'
-alias -g HET='HANAMI_ENV=test'
+alias rc='bin/rails console'
+alias rr='bin/rake routes'
+alias rdm='bin/rake db:migrate'
+alias rdr='bin/rake db:rollback'
+alias rdms='bin/rake db:migrate:status'
 
 alias va=vagrant
 # alias vsh='va ssh'
@@ -121,21 +133,22 @@ alias vup='va up'
 alias vsup='va suspend'
 alias vhalt='va halt'
 
-alias ha=hanami
-alias hac='ha console'
-alias had='ha destroy'
-alias hag='ha generate'
-alias ham='ha generate migration'
-alias has='ha server'
-alias har='ha routes'
-
 alias zshrc='vi ~/.zshrc'
 alias vimrc='vi ~/.config/nvim/init.vim'
+
+alias cat=bat
+
+alias apb=ansible-playbook
 # }}}
 
 # environment variables {{{
-export EDITOR=vi
-export VISUAL=vi
+if [ `whence nvim` > /dev/null ]; then
+  export EDITOR=nvim
+  export VISUAL=nvim
+else
+  export EDITOR=vi
+  export VISUAL=vi
+fi
 #}}}
 
 # key bindings {{{
@@ -151,15 +164,23 @@ bindkey '^p' history-substring-search-up
 bindkey '^n' history-substring-search-down
 # }}}
 
-export fpath=(~/.config/exercism/functions $fpath)
-autoload -U compinit && compinit
+# export fpath=(~/.config/exercism/functions $fpath)
+# autoload -U compinit && compinit
 
-export PATH=$PATH:~/bin:/snap/bin
+# export PATH=$PATH:/usr/local/opt/ansible@2.9/bin:/usr/local/opt/erlang@23/bin:/usr/local/sbin:~/bin:/snap/bin
 # }}}
+
+if [[ "`uname -s`" == "Darwin" ]]; then
+  [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
+  [ -f $(brew --prefix asdf)/libexec/asdf.sh ] && . $(brew --prefix asdf)/libexec/asdf.sh
+else
+  [ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh && source "$HOME/.asdf/completions/asdf.bash"
+  [ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh
+fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-[ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh && source $HOME/.asdf/completions/asdf.bash
+[ -f ~/.ssh/id_pair ] && ssh-add ~/.ssh/id_pair 2> /dev/null
 
 export _git_log_fuller_format='%C(bold yellow)commit %H%C(auto)%d%n%C(bold)Author: %C(blue)%an <%ae> %C(reset)%C(cyan)%ai (%ar)%n%C(bold)Commit: %C(blue)%cn <%ce> %C(reset)%C(cyan)%ci (%cr)%C(reset)%n%+B'
 export _git_log_oneline_format='%C(bold yellow)%h%C(reset) %s%C(auto)%d%C(reset)'
@@ -185,7 +206,22 @@ git-branch-delete-interactive() {
   fi
 }
 
-pa!() {
+# HSTR configuration - add this to ~/.zshrc
+# alias hh=hstr                    # hh to be alias for hstr
+# setopt histignorespace           # skip cmds w/ leading space from history
+export HSTR_CONFIG=hicolor       # get more colors
+bindkey -s "\C-r" "\C-a hstr -- \C-j"     # bind hstr to Ctrl-r (for Vi mode check doc)
+
+# export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden'
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+# john
+export PATH="/opt/homebrew/opt/postgresql@10/bin:$PATH"
+
+alias db_dump="DEV_PASSWORD='ie6sucks' ~/vm/scripts/db_dump.rb"
+
+puma() {
   local folder_path
   [[ $PWD =~ '(.*nerv_ck|.*nerv_sg|.*nerv|.*amoeba|.*cam|.*angel)' ]] && folder_path=$match[1]
   cd $folder_path && [[ -f config/puma.rb ]] && RAILS_RELATIVE_URL_ROOT=/`basename $PWD` bundle exec puma -C $PWD/config/puma.rb $1
@@ -219,8 +255,13 @@ ct() {
 
   [[ $PWD =~ '(.*nerv_ck|.*nerv_sg|.*nerv)' ]] && folder_path=$match[1]
   adam_path="$folder_path/clojure/projects/adam"
-  cd $adam_path && clj -M:test:runner --watch
+  if [[ $1 ]]; then
+    cd $adam_path && clj -M:test:runner --watch --focus $1
+  else
+    cd $adam_path && clj -M:test:runner --watch
+  fi
 }
+
 
 # ---reset amoeba db
 resetadb() {
@@ -238,15 +279,6 @@ resetadbd() {
   # bundle exec rake db:schema:load RAILS_ENV=development
 }
 
-# HSTR configuration - add this to ~/.zshrc
-# alias hh=hstr                    # hh to be alias for hstr
-# setopt histignorespace           # skip cmds w/ leading space from history
-export HSTR_CONFIG=hicolor       # get more colors
-bindkey -s "\C-r" "\C-a hstr -- \C-j"     # bind hstr to Ctrl-r (for Vi mode check doc)
-
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden'
-
-# john
 # --- spring
 alias sspring='spring stop & spring binstub --all'
 # --- rake
@@ -268,6 +300,7 @@ alias form_fetch='thor form:fetch'
 # --- amoeba / cam
 alias site='thor setup:site'
 # --- tmux
+alias tmux='tmux -u'
 alias ktmux='pkill -f tmux'
 # --- yarn
 alias ys='yarn start'
@@ -284,10 +317,12 @@ alias cljk='cljkeva && cljkadam'
 alias bs='brew services'
 alias bu='brew upgrade'
 alias bunormal='bu libreoffice libreoffice-language-pack notion wkhtmltopdf'
-alias dbrestart='rm /usr/local/var/postgresql@10/postmaster.pid && bs restart postgresql@10 && bs'
-alias tig='TERM=xterm-256color tig'
+alias dbrestart='rm /opt/homebrew/var/postgresql@10/postmaster.pid && bs restart postgresql@10 && bs'
+# alias tig='TERM=xterm-256color tig'
 alias python='python3'
 alias sed=gsed
+alias punchin='cd ~/nerv && gss && gco `john/test` && cd e2e && npx cypress run --spec cypress/integration/abagile_punch_in.spec.js'
+alias punchout='cd ~/nerv && gss && gco `john/test` && cd e2e && npx cypress run --spec cypress/integration/abagile_punch_out.spec.js'
 
 # Manual checking before mina deploy
 #
@@ -331,13 +366,13 @@ abagile_git() {
 
 deployhk() {
   # ps aux | grep -E "cljs" | awk '{print $2}' | xargs kill -9 &&
-  bundle exec mina hk_production cljs:build_and_upload &&
+  # bundle exec mina hk_production cljs:build_and_upload &&
   bundle exec mina hk_production deploy
 }
 
 deployck() {
   # ps aux | grep -E "cljs" | awk '{print $2}' | xargs kill -9 &&
-  bundle exec mina ck_production cljs:build_and_upload &&
+  # bundle exec mina ck_production cljs:build_and_upload &&
   bundle exec mina ck_production deploy
 }
 
@@ -345,24 +380,13 @@ deployadam() {
   cd clojure/projects/adam && ./bin/deploy
 }
 
-# killserver () {
-#   pkill -f tmux
-#   ps aux | grep -E clojure | awk '{print $2}' | xargs kill -15
-#   ps aux | grep -E puma | awk '{print $2}' | xargs kill -15
-#   echo "done."
-# }
-#
+deployafs() {
+  bundle exec mina afs_production deploy && cd face && REACT_APP_VENDOR_API_TOKEN=dbca219310ae6b27cf2b24fadf7b38c0 npx shipit production deploy -b master
+}
 
-export PATH="/usr/local/opt/postgresql@10/bin:$PATH" >> ~/.zshrc
+deployipc() {
+  bundle exec mina ipc_production deploy && cd face && REACT_APP_VENDOR_API_TOKEN=dbca219310ae6b27cf2b24fadf7b38c0 npx shipit ipc_production deploy -b master
+}
 
 ssh-add ~/.ssh/id_pair
-
-# for rabbitmq
-# export PATH="/usr/local/sbin:$PATH"
-# export PATH=$PATH:/usr/local/sbin
-export PATH="/usr/local/opt/erlang@23/bin:$PATH"
-export LANGUAGE='en_US.UTF-8 git'
-# export PATH="/usr/local/opt/erlang@23/bin:$PATH"
-# export PATH=$HOME/bin:/usr/local/bin:/usr/local/opt/erlang@23/bin:$PATH
-# export PATH=$HOME/bin:/usr/local/bin:/usr/local/opt/libpq/bin:/usr/local/opt/erlang@23/bin:$PATH
-# export PATH="/usr/local/opt/erlang@22/bin:$PATH"
+export PATH="/opt/homebrew/opt/ansible@2.9/bin:$PATH"
